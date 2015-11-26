@@ -1,0 +1,20 @@
+Setup a directory to hold the oozie workflow
+
+hdfs dfs -mkdir -p hdfs://cdhmaster01.cdh.hadoop:8020/user/flume/oozie
+hdfs dfs -rm -f -r -skipTrash hdfs://cdhmaster01.cdh.hadoop:8020/user/flume/oozie/dummy
+hdfs dfs -put dummy hdfs://cdhmaster01.cdh.hadoop:8020/user/flume/oozie
+
+Run the job
+
+export OOZIE_URL=http://cdhmaster01.cdh.hadoop:11000/oozie
+oozie job \
+ -config dummy/job.properties \
+ -run
+
+Clean up for another run
+
+hdfs dfs -rm -f -r -skipTrash /user/flume/processing
+hdfs dfs -put test01.csv /user/flume
+hdfs dfs -put test02.csv /user/flume
+hdfs dfs -chown flume:flume /user/flume/test*.csv
+

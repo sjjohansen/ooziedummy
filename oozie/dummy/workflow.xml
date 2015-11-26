@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workflow-app xmlns="uri:oozie:workflow:0.5" name="hive2-wf">
+
+  <start to="setup-processing"/>
+
+  <action name="setup-processing">
+    <fs>
+      <mkdir path="${nameNode}/user/${wf:user()}/processing/${wf:id()}" />
+      <move source="${nameNode}/user/flume/test*.csv" target="${nameNode}/user/${wf:user()}/processing/${wf:id()}" />
+    </fs>
+    <ok to="hive2-node"/>
+    <error to="fail"/>
+  </action>
+
+  <action name="hive2-node">
+    <hive2 xmlns="uri:oozie:hive2-action:0.1">
+      <job-tracker>${jobTracker}</job-tracker>
+      <name-node>${nameNode}</name-node>
+      <jdbc-url>${jdbcURL}</jdbc-url>
+      <script>dummy.q</script>
+      <param>WORKING_DIR=${wf:id()}</param>
+    </hive2>
+    <ok to="end"/>
+    <error to="fail"/>
+  </action>
+
+  <kill name="fail">
+    <message>Hive2 (Beeline) action failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
+  </kill>
+
+  <end name="end"/>
+
+</workflow-app>
+
